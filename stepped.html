@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>AccurBeat · Core narrative · Stepped</title>
+<meta name="description" content="Why a 3-day Holter test? The core narrative, stepped version: one scroll, one step.">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #fff; color: #0a0a0a; font-family: Geist, system-ui, sans-serif; }
+  .stand-in { min-height: 100vh; display: grid; place-items: center; padding: 48px 16px; text-align: center; }
+  .stand-in.hero { background: #110d0a; color: #f4f0ea; }   /* the section opens on #110d0a: no seam */
+  .stand-in h1, .stand-in h2 { font: 400 clamp(32px, 5vw, 64px)/1.1 'Faculty Glyphic', Georgia, serif; margin: 0 0 12px; }
+  .stand-in p { margin: 0; opacity: .6; }
+</style>
+</head>
+<body data-version="stepped">
+
+<header class="stand-in hero"><div><h1>Why a 3-day Holter test?</h1><p>Scroll to begin</p></div></header>
+
+<accurbeat-narrative pace="stepped" label="Why a 3-day Holter test?"></accurbeat-narrative>
+
+<section class="stand-in"><div><h2>What your heartbeat can tell you.</h2></div></section>
+
+<script type="module" src="accurbeat-narrative/accurbeat-narrative.js"></script>
+<script src="js/version-bar.js"></script>
+</body>
+</html>
