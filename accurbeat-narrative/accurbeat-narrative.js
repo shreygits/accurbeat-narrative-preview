@@ -905,7 +905,7 @@ const __setEngine = (f) => { AKNarrative = f; };
     // and the joins between them smoothed over stepJoin seconds (so a change of speed never jolts)
     stepDetail: 'sub-scenes', stepJoin: 0.2,
     // snap: the page scrolls natively and comes to rest on the frames; the visual follows on the sub-scenes' timing
-    snapRate: 1, snapLand: true, snapDelay: 160, snapHold: 0.3, snapGap: 0.8, snapCommit: 0.2,
+    snapRate: 1, snapLand: true, snapDelay: 160, snapDwell: 0.7, snapHold: 0.3, snapGap: 0.8, snapCommit: 0.2,
     // paced: each beat's hold and each transition's length, in scrolls (viewport heights); landing commits past `commit`
     pHold1: 0.5, pHold2: 0.6, pHold3: 0.55, pHold4: 0.55, pZoom: 1.0, pSweep: 0.75, pDive: 0.9, commit: 0.3,
     // paced follows the scroll but never faster than this × the authored pace (so a hard flick can't rush a zoom);
@@ -2521,6 +2521,7 @@ const __setEngine = (f) => { AKNarrative = f; };
       const snapCtl = [
         ...snapLayout,
         fp.add(PACE, 'snapCommit', 0.05, 0.95, 0.01).name('go on after (share of the gap)'),
+        fp.add(PACE, 'snapDwell', 0, 3, 0.05).name('pause on a beat while scrolling on (s)'),
         fp.add(PACE, 'snapRate', 0.5, 3, 0.05).name('follow speed (× authored)'),
         fp.add(PACE, 'snapLand').name('land on beats'),
         fp.add(PACE, 'snapDelay', 60, 600, 10).name('land after a pause of (ms)'),
@@ -2894,11 +2895,18 @@ const __setEngine = (f) => { AKNarrative = f; };
     // snap: the authored pace, one beat per gesture. paced: the scroll, but no faster than pMaxRate × the authored pace.
     follow(dt, s, SNAP());
   }
+  let dwell = null;
   function follow(dt, s, sn) {
     let tT = tauOfU(sToU(s));
     if (sn && rest != null) {   // one beat per gesture
-      const S = stops(), b = (i) => (i < 0 ? 0 : i > 3 ? Infinity : tauOfU(S[i]));
-      tT = clamp(tT, b(rest - 1), b(rest + 1));
+      const S = stops(), b = (i) => (i < 0 ? 0 : i > 3 ? Infinity : tauOfU(S[i])), lo = b(rest - 1), hi = b(rest + 1);
+      // held at the next beat while the page is still beyond it (a scroll that keeps going): after a short pause on the
+      // beat, carry on, so a continuous scroll moves through the story with a rest on each beat instead of freezing
+      const k = tT > hi && tauV != null && tauV >= hi - 1e-3 && rest + 1 <= 3 ? rest + 1 : tT < lo && tauV != null && tauV <= lo + 1e-3 && rest - 1 >= 0 ? rest - 1 : null;
+      if (k == null) dwell = null;
+      else if (!dwell || dwell.k !== k) dwell = { k, t: performance.now() };
+      else if (performance.now() - dwell.t > PACE.snapDwell * 1000) { rest = k; dwell = null; }
+      tT = clamp(tT, lo, hi);
     }
     if (tauV == null) { tauV = tT; tauVel = 0; }
     const gap = tT - tauV;
